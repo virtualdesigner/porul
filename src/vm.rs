@@ -68,6 +68,33 @@ impl VM {
                 self.remainder = (number_1 % number_2) as u32;
                 false
             }
+            Opcode::JMP => {
+                // absolute jump
+                let step_to_jump = ((self.next_16_bits() as u32) << 8 | self.next_8_bits() as u32) as usize;
+                if step_to_jump >= self.program.len() {
+                    panic!("The instruction index: {step_to_jump} to jump is larger than the program length: {}", self.program.len());
+                }
+                self.pc = step_to_jump;
+                false
+            }
+            Opcode::JMPF => {
+                // relative jump forward
+                let step_to_jump = ((self.next_16_bits() as u32) << 8 | (self.next_8_bits()) as u32) as usize;
+                if self.pc + step_to_jump >= self.program.len() {
+                    panic!("The instruction index: {} to jump forward is larger than the program length: {}", self.pc + step_to_jump, self.program.len());
+                }
+                self.pc += step_to_jump;
+                false
+            }
+            Opcode::JMPB => {
+                // relative jump backward
+                let step_to_jump = ((self.next_16_bits() as u32) << 8 | (self.next_8_bits()) as u32) as usize;
+                if (self.pc as i32 - step_to_jump as i32) < 0 {
+                    panic!("The instruction index: {} to jump backward is negative: {}", self.pc - step_to_jump, self.program.len());
+                }
+                self.pc -= step_to_jump;
+                false
+            }
             other => {
                 println!("Error: Unrecognized opcode {:?}! Terminating!", other);
                 return true;
@@ -129,5 +156,30 @@ mod tests {
         test_vm.program = vec![1, 0, 1, 244];
         test_vm.run();
         assert_eq!(test_vm.registers[0], 500);
+    }
+
+    #[test]
+    fn test_jmp_absolute_opcode() {
+        let mut test_vm = VM::new();
+        test_vm.program = vec![6, 0, 0, 1];
+        test_vm.run_once();
+        assert_eq!(test_vm.pc, 1);
+    }
+
+
+    #[test]
+    fn test_jmp_relative_forward_opcode() {
+        let mut test_vm = VM::new();
+        test_vm.program = vec![7, 0, 0, 1, 1, 0, 0, 1];
+        test_vm.run_once();
+        assert_eq!(test_vm.pc, 5);
+    }
+
+    #[test]
+    fn test_jmp_relative_backward_opcode() {
+        let mut test_vm = VM::new();
+        test_vm.program = vec![8, 0, 0, 2];
+        test_vm.run_once();
+        assert_eq!(test_vm.pc, 2);
     }
 }
