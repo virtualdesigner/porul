@@ -17,7 +17,8 @@ pub enum Opcode {
     GEQ,
     LEQ,
     GT,
-    LT
+    LT,
+    JNEQ
 }
 
 pub struct Instruction {
@@ -51,6 +52,7 @@ impl From<u8> for Opcode {
             13 => return Opcode::LEQ,
             14 => return Opcode::GT,
             15 => return Opcode::LT,
+            16 => return Opcode::JNEQ,
             _ => return Opcode::IGL
         }
     }

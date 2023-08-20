@@ -187,6 +187,24 @@ impl VM {
                 }
                 false
             }
+            Opcode::JNEQ => {
+                let register_index = self.next_8_bits() as usize;
+                self.next_16_bits();
+
+                if register_index >= 32 {
+                    panic!("JNEQ command referring to non-existing register index: {register_index}")
+                }
+                let step_to_jump = self.registers[register_index];
+                if self.comparison_result == false {
+                    if step_to_jump as usize > self.program.len() {
+                        panic!("The instruction index: {} to jump is greater than the program length: {}", step_to_jump, self.program.len());
+                    } else if step_to_jump < 0 {
+                        panic!("The instruction index: {} to jump is negative", step_to_jump);
+                    }
+                    self.pc = step_to_jump as usize;
+                }
+                false
+            }
             other => {
                 println!("Error: Unrecognized opcode {:?}! Terminating!", other);
                 return true;
@@ -431,4 +449,27 @@ mod tests {
         test_vm.run_once();
         assert_eq!(test_vm.comparison_result, true);
     }
+
+    #[test]
+    fn test_jneq_opcode() {
+        let mut test_vm = VM::new();
+        test_vm.registers[0] = 10;
+
+        test_vm.program = vec![
+                            16, 0, 0, 0, 
+                            16, 0, 0, 0, 
+                            1, 1, 0, 10,
+                        ];
+        
+        // check no jump when equals
+        test_vm.comparison_result = true;
+        test_vm.run_once();
+        assert_eq!(test_vm.pc, 4);
+
+        // check jump when not equals
+        test_vm.comparison_result = false;
+        test_vm.run_once();
+        assert_eq!(test_vm.pc, 10);
+    }
+
 }
