@@ -10,7 +10,14 @@ pub enum Opcode {
     DIV,
     JMP,
     JMPF,
-    JMPB
+    JMPB,
+    EQ,
+    NEQ,
+    JEQ,
+    GEQ,
+    LEQ,
+    GT,
+    LT
 }
 
 pub struct Instruction {
@@ -37,6 +44,13 @@ impl From<u8> for Opcode {
             6 => return Opcode::JMP,
             7 => return Opcode::JMPF,
             8 => return Opcode::JMPB,
+            9 => return Opcode::EQ,
+            10 => return Opcode::NEQ,
+            11 => return Opcode::JEQ,
+            12 => return Opcode::GEQ,
+            13 => return Opcode::LEQ,
+            14 => return Opcode::GT,
+            15 => return Opcode::LT,
             _ => return Opcode::IGL
         }
     }
