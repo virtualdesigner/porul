@@ -1,6 +1,6 @@
 use crate::instruction::Opcode;
 pub struct VM {
-    registers: [i32; 32],
+    pub registers: [i32; 32],
     pc: usize,
     program: Vec<u8>,
     remainder: u32,
@@ -229,6 +229,10 @@ impl VM {
         let second_part = self.program[self.pc + 1] as u16;
         self.pc += 2;
         return first_part | second_part;
+    }
+
+    pub fn add_byte(&mut self, byte: u8) {
+        self.program.push(byte);
     }
 }
 
