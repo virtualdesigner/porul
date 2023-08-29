@@ -1,8 +1,7 @@
 #[derive(PartialEq)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum Opcode {
     HLT,
-    IGL,
     LOAD,
     ADD,
     SUB,
@@ -18,7 +17,8 @@ pub enum Opcode {
     LEQ,
     GT,
     LT,
-    JNEQ
+    JNEQ,
+    IGL,
 }
 
 pub struct Instruction {
